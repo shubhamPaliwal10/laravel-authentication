@@ -42,7 +42,6 @@ class AuthController extends Controller
             'mobile' => 'required|digits:10',
             'password' => 'required|string|min:6',
         ]);
-
         if (!$validator->fails()) {
             try {
                 $credentials = $request->only('mobile', 'password');
