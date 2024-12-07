@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
+    public function register(Request $request){
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'mobile' => 'required|digits:10|unique:users,mobile',
+            'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
         if (!$validator->fails()) {
@@ -25,55 +25,55 @@ class AuthController extends Controller
                     'first_name' => $request->input('first_name'),
                     'last_name' => $request->input('last_name'),
                     'mobile' => $request->input('mobile'),
+                    'email' => $request->input('email'),
                     'password' => Hash::make($request->input('password')),
                 ]);
-                return response()->json(['status_code' => 1, 'message' => 'User registered successfully'], 201);
+
+                return redirect()->route('login')
+                ->with('success', 'User registered successfully. Please log in.');
             } catch (\Exception $e) {
-                return response()->json(['status_code' => 0, 'message' => 'Unable to register user', 'error' => $e], 500);
+                return redirect()->back()
+                ->with('error', 'Unable to register user. Please try again.')->withInput();
             }
         } else {
-            return response()->json(['status_code' => 2, 'message' => $validator->errors()->first()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
     }
 
-    public function login(Request $request)
-    {
+    public function login(Request $request) {
+        $username = $request->input('username');
+        $isEmail = filter_var($username, FILTER_VALIDATE_EMAIL);
+
         $validator = Validator::make($request->all(), [
-            'mobile' => 'required|digits:10',
+            'username' => $isEmail ? 'required|email' : 'required|digits:10',
             'password' => 'required|string|min:6',
         ]);
         if (!$validator->fails()) {
             try {
-                $credentials = $request->only('mobile', 'password');
+                $credentials = $isEmail
+                ? ['email' => $username, 'password' => $request->input('password')]
+                : ['mobile' => $username, 'password' => $request->input('password')];
                 $remember = $request->has('remember') ? true : false;
 
                 if (Auth::attempt($credentials, $remember)) {
-                    $redirectUrl = 'dashboard';
-                    if (auth()->user()->user_type == 'Admin') {
-                        $redirectUrl = 'admin.dashboard';
-                    }
-
-                    return redirect()->route($redirectUrl);
-                    return response()->json([
-                        'status_code' => 1,
-                        'message' => 'User logged in successfully',
-                        'redirect_url' => $redirectUrl
-                    ], 200);
+                    // if (auth()->user()->user_type == 'Admin') {
+                    //     return redirect()->route('admin.dashboard')->with('success', 'You are logged in.');
+                    // }
+                    return redirect()->route('dashboard')->with('success', 'You are logged in.');
                 } else {
-                    return response()->json(['status_code' => 0, 'message' => 'Invalid mobile or password'], 401);
+                    return redirect()->back()->with('error', 'Invalid username or password.')->withInput();
                 }
             } catch (\Exception $e) {
-                return response()->json(['status_code' => 0, 'message' => 'something went wrong', 'error' => $e], 500);
+                return redirect()->back()->with('error', 'Unable to login, Server error.');
             }
         } else {
-            return response()->json(['status_code' => 2, 'message' => $validator->errors()->first()], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
     }
 
-    public function logout(Request $request)
-    {
+    public function logout(Request $request){
         Auth::logout();
+
         return redirect()->route('login');
-        return response()->json(['status_code' => 1, 'message' => 'User logged out successfully'], 200);
     }
 }

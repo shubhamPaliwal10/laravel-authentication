@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->enum('user_type', ['Admin', 'Customer']);
-            $table->string('mobile')->unique();
+            $table->string('mobile')->nullable()->unique();
+            $table->string('email')->nullable()->unique();
+            $table->string('google_id')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->dateTime('created_at');
-            $table->dateTime('updated_at')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

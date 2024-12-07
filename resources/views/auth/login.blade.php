@@ -37,28 +37,56 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="form-group mb-3">
-                <label for="mobile">Mobile</label>
-                <input type="text" class="form-control" id="mobile" name="mobile" required>
+                <label for="username">Username</label>
+                <input 
+                    type="text" 
+                    class="form-control @error('username') is-invalid @enderror" 
+                    id="username" 
+                    name="username" 
+                    value="{{ old('username') }}" 
+                    required
+                >
+                @error('username')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="form-group mb-3">
                 <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input 
+                    type="password" 
+                    class="form-control @error('password') is-invalid @enderror" 
+                    id="password" 
+                    name="password" 
+                    required
+                >
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                <input 
+                    type="checkbox" 
+                    class="form-check-input" 
+                    id="remember" 
+                    name="remember" 
+                    {{ old('remember') ? 'checked' : '' }}
+                >
                 <label class="form-check-label" for="remember">Remember me</label>
             </div>
             <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
+        </form>        
         <button class="btn google-login w-100 mt-3" onclick="window.location.href='{{ route('auth.google') }}'">
             <i class="fab fa-google"></i> Login with Google
         </button>
+        <div class="mt-3 text-center">
+            <a href="{{ route('register') }}">New here? Register</a>
+        </div>
     </div>
 </div>
 @endsection
 
 @section('custom_scripts')
 <script>
-    // Custom scripts if needed
+    
 </script>
 @endsection
