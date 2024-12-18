@@ -22,7 +22,7 @@ class UserFactory extends Factory
             'mobile' => $this->faker->unique()->numerify('##########'),
             'email' => $this->faker->unique()->safeEmail,
             'google_id' => null,
-            'password' => Hash::make('password'),
+            'password' => Hash::make('123456'),
             'remember_token' => Str::random(10),
         ];
     }
