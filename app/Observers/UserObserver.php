@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Balance;
 use App\Models\User;
 
 class UserObserver
@@ -11,8 +12,13 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        //
         \Log::info('User created: ' . $user->email);
+
+        Balance::create([
+            'user_id' => $user->id,
+            'wallet1' => 0,
+            'wallet2' => 0,
+        ]);
     }
 
     /**

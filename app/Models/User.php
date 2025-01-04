@@ -25,4 +25,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function balance()
+    {
+        return $this->hasOne(Balance::class, 'user_id', 'id');
+    }
 }
